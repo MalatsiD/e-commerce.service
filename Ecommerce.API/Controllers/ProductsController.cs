@@ -1,25 +1,23 @@
-﻿using Ecommerce.Core.Entities;
+﻿using Ecommerce.API.RequestHelpers;
+using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Specifications;
-using Ecommerce.Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IGenericRepository<Product> _repo) : ControllerBase
+    public class ProductsController(IGenericRepository<Product> _repo) : BaseApiController
     {
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            var spec = new ProductSpecification(brand, type, sort);
+            var spec = new ProductSpecification(specParams);
 
-            var result = await _repo.ListAsync(spec);
+            var result = await CreatePagedResult(_repo, spec, specParams.PageIndex, specParams.PageSize);
 
-            return Ok(result);
+            return result;
         }
 
         [HttpGet("{id:int}")]

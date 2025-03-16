@@ -19,6 +19,7 @@ namespace Ecommerce.Core.Interfaces
         void Update(T entity);
         void Delete(T entity);
         bool Exists(int id);
+        Task<int> CountAsync(ISpecification<T> spec);
         Task<bool> SaveChangesAsync();
     }
 }

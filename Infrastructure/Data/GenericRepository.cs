@@ -16,6 +16,13 @@ namespace Ecommerce.Infrastructure.Data
             _context.Set<T>().Add(entity);
         }
 
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            var query = _context.Set<T>().AsQueryable();
+
+            return await query.CountAsync();
+        }
+
         public void Delete(T entity)
         {
             _context.Set<T>().Remove(entity);
