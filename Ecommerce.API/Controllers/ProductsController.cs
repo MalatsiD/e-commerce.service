@@ -9,19 +9,12 @@ namespace Ecommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductsController(IGenericRepository<Product> _repo) : ControllerBase
     {
-        private readonly IProductRepository _productRepository;
-
-        public ProductsController(IProductRepository productRepository)
-        {
-            _productRepository = productRepository;
-        }
-
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            var result = await _productRepository.GetProductsAsync(brand, type, sort);
+            var result = await _repo.GetAllAsync();
 
             return Ok(result);
         }
@@ -29,7 +22,7 @@ namespace Ecommerce.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _productRepository.GetProductByIdAsync(id);
+            var product = await _repo.GetByIdAsync(id);
 
             if (product == null)
                 return NotFound();
@@ -40,8 +33,8 @@ namespace Ecommerce.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> AddProduct(Product product)
         {
-            _productRepository.AddProduct(product);
-            var isCreated = await _productRepository.SaveChangesAsync();
+            _repo.Add(product);
+            var isCreated = await _repo.SaveChangesAsync();
 
             if (!isCreated)
             {
@@ -59,8 +52,8 @@ namespace Ecommerce.API.Controllers
                 return BadRequest("Cannot update this product");
             }
 
-            _productRepository.UpdateProduct(product);
-            var isUpdated = await _productRepository.SaveChangesAsync();
+            _repo.Update(product);
+            var isUpdated = await _repo.SaveChangesAsync();
 
             if (!isUpdated)
             {
@@ -73,15 +66,15 @@ namespace Ecommerce.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            var product = await _productRepository.GetProductByIdAsync(id);
+            var product = await _repo.GetByIdAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            _productRepository.DeleteProduct(product);
-            var isDeleted = await _productRepository.SaveChangesAsync();
+            _repo.Delete(product);
+            var isDeleted = await _repo.SaveChangesAsync();
 
             if(!isDeleted)
             {
@@ -94,22 +87,22 @@ namespace Ecommerce.API.Controllers
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
         {
-            var result = await _productRepository.GetBrandsAsync();
+            // To Do
 
-            return Ok(result);
+            return Ok();
         }
 
         [HttpGet("types")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
         {
-            var result = await _productRepository.GetTypesAsync();
+            // To Do
 
-            return Ok(result);
+            return Ok();
         }
 
         private bool ProductExists(int id)
         {
-            return _productRepository.ProductExists(id);
+            return _repo.Exists(id);
         }
     }
 }
