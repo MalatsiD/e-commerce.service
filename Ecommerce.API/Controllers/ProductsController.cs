@@ -19,9 +19,9 @@ namespace Ecommerce.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            var result = await _productRepository.GetProductsAsync();
+            var result = await _productRepository.GetProductsAsync(brand, type, sort);
 
             return Ok(result);
         }
@@ -89,6 +89,22 @@ namespace Ecommerce.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            var result = await _productRepository.GetBrandsAsync();
+
+            return Ok(result);
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            var result = await _productRepository.GetTypesAsync();
+
+            return Ok(result);
         }
 
         private bool ProductExists(int id)

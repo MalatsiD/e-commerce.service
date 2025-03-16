@@ -28,14 +28,39 @@ namespace Ecommerce.Infrastructure.Data
             _storeContext.Products.Remove(product);
         }
 
+        public async Task<IReadOnlyList<string>> GetBrandsAsync()
+        {
+            return await _storeContext.Products.Select(x => x.Brand).Distinct().ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<string>> GetTypesAsync()
+        {
+            return await _storeContext.Products.Select(x => x.Type).Distinct().ToListAsync();
+        }
+
         public async Task<Product?> GetProductByIdAsync(int id)
         {
             return await _storeContext.Products.FindAsync(id);
         }
 
-        public async Task<IReadOnlyList<Product>> GetProductsAsync()
+        public async Task<IReadOnlyList<Product>> GetProductsAsync(string? brand, string? type, string? sort)
         {
-            return await _storeContext.Products.ToListAsync();
+            var query = _storeContext.Products.AsQueryable();
+
+            if(!string.IsNullOrWhiteSpace(brand))
+                query = query.Where(x => x.Brand == brand);
+
+            if (!string.IsNullOrWhiteSpace(type))
+                query = query.Where(x => x.Type == type);
+
+            query = sort switch
+            {
+                "priceAsc" => query.OrderBy(x => x.Price),
+                "priceDesc" => query.OrderByDescending(x => x.Price),
+                _ => query.OrderBy(x => x.Name)
+            };
+
+            return await query.ToListAsync();
         }
 
         public bool ProductExists(int id)
