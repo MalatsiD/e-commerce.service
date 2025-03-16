@@ -90,17 +90,21 @@ namespace Ecommerce.API.Controllers
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
         {
-            // To Do
+            var spec = new BrandListSpecification();
 
-            return Ok();
+            var result = await _repo.ListAsync(spec);
+
+            return Ok(result);
         }
 
         [HttpGet("types")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
         {
-            // To Do
+            var spec = new TypeListSpecification();
 
-            return Ok();
+            var result = await _repo.ListAsync(spec);
+
+            return Ok(result);
         }
 
         private bool ProductExists(int id)

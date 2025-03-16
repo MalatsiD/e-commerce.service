@@ -13,6 +13,8 @@ namespace Ecommerce.Core.Interfaces
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<T?> GetEntityWithSpecAsync(ISpecification<T> spec);
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
+        Task<TResult?> GetEntityWithSpecAsync<TResult>(ISpecification<T, TResult> spec);
+        Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<T, TResult> spec);
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
