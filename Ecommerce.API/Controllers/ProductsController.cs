@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
+using Ecommerce.Core.Specifications;
 using Ecommerce.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,9 @@ namespace Ecommerce.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            var result = await _repo.GetAllAsync();
+            var spec = new ProductSpecification(brand, type, sort);
+
+            var result = await _repo.ListAsync(spec);
 
             return Ok(result);
         }
