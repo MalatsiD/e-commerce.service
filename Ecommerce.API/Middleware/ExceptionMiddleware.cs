@@ -4,16 +4,21 @@ using System.Text.Json;
 
 namespace Ecommerce.API.Middleware
 {
-    public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next)
+    public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next, ILoggerFactory _loggerFactory)
     {
         public async Task InvokeAsync(HttpContext context)
         {
+            var _logger = _loggerFactory.CreateLogger<ExceptionMiddleware>();
+
             try
             {
                 await next(context);
             }
             catch (Exception ex)
             {
+                string? stackTrace = env.IsDevelopment() ? ex.StackTrace : "Internal server error";
+                _logger.LogError("Error: {@ErrorMessage}, {@StackTrace}", ex.Message, stackTrace);
+
                 await HandleExceptionAsync(context, ex, env);
                 throw;
             }
