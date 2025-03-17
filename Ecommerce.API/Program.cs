@@ -1,3 +1,4 @@
+using Ecommerce.API.Middleware;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ builder.Services.AddDbContext<StoreContext>(options =>
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,6 +32,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors(options => 
+    options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://localhost:4200")
+);
 
 app.MapControllers();
 
