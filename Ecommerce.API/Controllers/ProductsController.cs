@@ -13,15 +13,15 @@ namespace Ecommerce.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, specParams, DateTime.UtcNow);
 
             var spec = new ProductSpecification(specParams);
 
             var result = await CreatePagedResult(_repo, spec, specParams.PageIndex, specParams.PageSize);
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, result, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return result;
         }
@@ -29,16 +29,16 @@ namespace Ecommerce.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, id, DateTime.UtcNow);
 
             var product = await _repo.GetByIdAsync(id);
 
             if (product == null)
                 return NotFound();
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, product, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return Ok(product);
         }
@@ -46,8 +46,8 @@ namespace Ecommerce.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> AddProduct(Product product)
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, product, DateTime.UtcNow);
 
             _repo.Add(product);
             var isCreated = await _repo.SaveChangesAsync();
@@ -57,8 +57,8 @@ namespace Ecommerce.API.Controllers
                 return BadRequest("Problem creating product");
             }
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, product, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return CreatedAtAction("GetProduct", new {id = product.Id}, product);  
         }
@@ -66,8 +66,8 @@ namespace Ecommerce.API.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateProduct(int id, Product product)
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, new { id, product }, DateTime.UtcNow);
 
             if (product.Id != id || !ProductExists(id))
             {
@@ -82,8 +82,8 @@ namespace Ecommerce.API.Controllers
                 return BadRequest("Problem updating the product");
             }
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, product, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return NoContent();
         }
@@ -91,8 +91,8 @@ namespace Ecommerce.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, id, DateTime.UtcNow);
 
             var product = await _repo.GetByIdAsync(id);
 
@@ -109,8 +109,8 @@ namespace Ecommerce.API.Controllers
                 return BadRequest("Ploblem deleting a product");
             }
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, product, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return NoContent();
         }
@@ -118,15 +118,15 @@ namespace Ecommerce.API.Controllers
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, string.Empty, DateTime.UtcNow);
 
             var spec = new BrandListSpecification();
 
             var result = await _repo.ListAsync(spec);
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, result, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return Ok(result);
         }
@@ -134,15 +134,15 @@ namespace Ecommerce.API.Controllers
         [HttpGet("types")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
         {
-            _logger.LogInformation("Starting request {@RequestName}, {@DateTimeUct}",
-                typeof(ProductsController).Name, DateTime.UtcNow);
+            _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
+                typeof(ProductsController).Name, string.Empty, DateTime.UtcNow);
 
             var spec = new TypeListSpecification();
 
             var result = await _repo.ListAsync(spec);
 
-            _logger.LogInformation("Ending request {@RequestName}, {@Response}, {@DateTimeUct}",
-                typeof(ProductsController).Name, result, DateTime.UtcNow);
+            _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
+                typeof(ProductsController).Name, DateTime.UtcNow);
 
             return Ok(result);
         }
