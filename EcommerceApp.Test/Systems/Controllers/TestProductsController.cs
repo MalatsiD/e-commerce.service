@@ -23,6 +23,7 @@ namespace Ecommerce.Test.Systems.Controllers
             _controller = new ProductsController(_mockRepo.Object, _mockLogger.Object);
         }
 
+        #region Test Get Product List
         [Fact]
         public async Task Get_OnSuccess_ReturnListOfProducts()
         {
@@ -49,7 +50,9 @@ namespace Ecommerce.Test.Systems.Controllers
             Assert.Equal(products.Count, returnedProducts.Data.Count);
             Assert.Equal(products[0].Name, returnedProducts.Data[0].Name);
         }
+        #endregion
 
+        #region Test Get Product
         [Fact]
         public async Task Get_OnSuccess_ReturnProduct()
         {
@@ -62,7 +65,7 @@ namespace Ecommerce.Test.Systems.Controllers
                 .ReturnsAsync(filteredProduct);
 
             // Act
-            var result = await  _controller.GetProduct(id);
+            var result = await _controller.GetProduct(id);
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<Product>>(result);
@@ -72,6 +75,27 @@ namespace Ecommerce.Test.Systems.Controllers
             Assert.Equal(filteredProduct!.Name, returnedProduct.Name);
         }
 
+        [Fact]
+        public async Task Get_OnFail_ReturnNotFoud()
+        {
+            // Arrange
+            int id = 1;
+            var product = ProductData.GetProducts().Find(x => x.Id == 3);
+
+            _mockRepo.Setup(service => service.GetByIdAsync(id))
+                .ReturnsAsync(product);
+
+            // Act
+            var result = await _controller.GetProduct(id);
+
+            // Assert
+
+            var actionResult = Assert.IsType<ActionResult<Product>>(result);
+            Assert.IsType<NotFoundResult>(actionResult.Result);
+        }
+        #endregion End Get Product
+
+        #region Test Create Product
         [Fact]
         public async Task Add_OnSuccess_ReturnCreated()
         {
@@ -95,6 +119,26 @@ namespace Ecommerce.Test.Systems.Controllers
         }
 
         [Fact]
+        public async Task Add_OnFail_ReturnBadRequest()
+        {
+            // Arrange
+            var product = ProductData.GetProduct(3, "Test New Prod");
+
+            _mockRepo.Setup(service => service.Add(product));
+            _mockRepo.Setup(service => service.SaveChangesAsync())
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.AddProduct(product);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<Product>>(result);
+            Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+        }
+        #endregion
+
+        #region Test Update Product
+        [Fact]
         public async Task Update_OnSuccess_ReturnUpdated()
         {
             // Arrange
@@ -116,6 +160,47 @@ namespace Ecommerce.Test.Systems.Controllers
         }
 
         [Fact]
+        public async Task Update_OnIdFail_ReturnBadRequest()
+        {
+            // Arrange
+            int id = 1;
+            var product = ProductData.GetProducts().Find(x => x.Id == 2);
+
+            _mockRepo.Setup(service => service.Exists(id))
+                 .Returns(true);
+
+            // Act
+            var result = await _controller.UpdateProduct(id, product!);
+
+            // Assert
+            var actionResult = Assert.IsAssignableFrom<ActionResult>(result);
+            Assert.IsType<BadRequestObjectResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task Update_OnRecordUpdateFail_ReturnBadRequest()
+        {
+            // Arrange
+            int id = 1;
+            var product = ProductData.GetProducts().Find(x => x.Id == 1);
+
+            _mockRepo.Setup(service => service.Exists(id))
+                 .Returns(true);
+            _mockRepo.Setup(service => service.Update(product!));
+            _mockRepo.Setup(service => service.SaveChangesAsync())
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.UpdateProduct(id, product!);
+
+            // Assert
+            var actionResult = Assert.IsAssignableFrom<ActionResult>(result);
+            Assert.IsType<BadRequestObjectResult>(actionResult);
+        }
+        #endregion
+
+        #region Test Delete Product
+        [Fact]
         public async Task Delete_OnSuccess_ReturnNoContent()
         {
             // Arrange
@@ -136,6 +221,47 @@ namespace Ecommerce.Test.Systems.Controllers
         }
 
         [Fact]
+        public async Task Delete_OnFail_ResturnNotFound()
+        {
+            // Arrange
+            int id = 1;
+            var product = ProductData.GetProducts().Find(x => x.Id == 3);
+
+            _mockRepo.Setup(service => service.GetByIdAsync(id))
+                .ReturnsAsync(product);
+
+            // Act 
+            var result = await _controller.DeleteProduct(id);
+
+            // Assert
+            var actionResult = Assert.IsAssignableFrom<ActionResult>(result);
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task Delete_OnFail_ResturnBadRequest()
+        {
+            // Arrange
+            int id = 1;
+            var product = ProductData.GetProducts().Find(x => x.Id == id);
+
+            _mockRepo.Setup(service => service.GetByIdAsync(id))
+                .ReturnsAsync(product);
+            _mockRepo.Setup(service => service.Delete(product!));
+            _mockRepo.Setup(service => service.SaveChangesAsync())
+                .ReturnsAsync(false);
+
+            // Act 
+            var result = await _controller.DeleteProduct(id);
+
+            // Assert
+            var actionResult = Assert.IsAssignableFrom<ActionResult>(result);
+            Assert.IsType<BadRequestObjectResult>(actionResult);
+        }
+        #endregion
+
+        #region Test Get Brands List
+        [Fact]
         public async Task Get_OnSuccess_ReturnListOfBrands()
         {
             // Arrange
@@ -155,7 +281,9 @@ namespace Ecommerce.Test.Systems.Controllers
             Assert.Equal(brands.Count, brandsResponse.Count);
             Assert.Equal(brands, brandsResponse);
         }
+        #endregion
 
+        #region Test Get Types List
         [Fact]
         public async Task Get_OnSuccess_ReturnListOfTypes()
         {
@@ -176,5 +304,6 @@ namespace Ecommerce.Test.Systems.Controllers
             Assert.Equal(types.Count, typesResponse.Count);
             Assert.Equal(types, typesResponse);
         }
+        #endregion
     }
 }
