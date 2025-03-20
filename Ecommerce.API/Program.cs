@@ -1,8 +1,10 @@
 using Ecommerce.API.Middleware;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Data;
+using Ecommerce.Infrastructure.services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,16 @@ builder.Host.UseSerilog((context, configuration) =>
 });
 
 builder.Services.AddCors();
+builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
+{
+    var connString = builder.Configuration.GetConnectionString("Redis") ?? 
+        throw new Exception("Cannot get redis connection string");
+    var configuration = ConfigurationOptions.Parse(connString, true);
+
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
+builder.Services.AddSingleton<ICartService, CartService>();
 
 var app = builder.Build();
 
