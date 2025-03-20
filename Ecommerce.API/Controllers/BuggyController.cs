@@ -1,6 +1,6 @@
 ﻿using Ecommerce.API.DTOs;
-using Ecommerce.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
+//using System.Web.Http;
 
 namespace Ecommerce.API.Controllers
 {
@@ -25,7 +25,7 @@ namespace Ecommerce.API.Controllers
         }
 
         [HttpGet("internalerror")]
-        public IActionResult GetInternalErro()
+        public IActionResult GetInternalError()
         {
             throw new Exception("This is a test exception");
         }

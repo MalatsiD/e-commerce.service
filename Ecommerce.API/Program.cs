@@ -39,7 +39,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
 

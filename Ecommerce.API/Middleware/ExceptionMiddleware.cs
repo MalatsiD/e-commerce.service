@@ -20,7 +20,6 @@ namespace Ecommerce.API.Middleware
                 _logger.LogError("Error: {@ErrorMessage}, {@StackTrace}", ex.Message, stackTrace);
 
                 await HandleExceptionAsync(context, ex, env);
-                throw;
             }
         }
 
