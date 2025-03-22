@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class ProductsController(IGenericRepository<Product> _repo, ILogger<ProductsController> _logger) : BaseApiController
     {
         [HttpGet]

@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class CartController (ICartService cartService) : BaseApiController
     {
         [HttpGet]
