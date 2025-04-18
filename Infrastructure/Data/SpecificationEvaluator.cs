@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,9 @@ namespace Ecommerce.Infrastructure.Data
             {
                 query = query.Skip(spec.Skip).Take(spec.Take);
             }
+
+            query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+            query = spec.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
 
             return query;
         }

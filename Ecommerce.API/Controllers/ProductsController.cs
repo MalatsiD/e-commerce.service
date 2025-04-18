@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Controllers
 {
-    public class ProductsController(IGenericRepository<Product> _repo, ILogger<ProductsController> _logger) : BaseApiController
+    public class ProductsController(IUnitOfWork _unit, ILogger<ProductsController> _logger) : BaseApiController
     {
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
@@ -16,7 +16,7 @@ namespace Ecommerce.API.Controllers
 
             var spec = new ProductSpecification(specParams);
 
-            var result = await CreatePagedResult(_repo, spec, specParams.PageIndex, specParams.PageSize);
+            var result = await CreatePagedResult(_unit.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
 
             _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
                 typeof(ProductsController).Name, DateTime.UtcNow);
@@ -30,7 +30,7 @@ namespace Ecommerce.API.Controllers
             _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
                 typeof(ProductsController).Name, id, DateTime.UtcNow);
 
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _unit.Repository<Product>().GetByIdAsync(id);
 
             if (product == null)
                 return NotFound();
@@ -47,8 +47,8 @@ namespace Ecommerce.API.Controllers
             _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
                 typeof(ProductsController).Name, product, DateTime.UtcNow);
 
-            _repo.Add(product);
-            var isCreated = await _repo.SaveChangesAsync();
+            _unit.Repository<Product>().Add(product);
+            var isCreated = await _unit.Complete();
 
             if (!isCreated)
             {
@@ -72,8 +72,8 @@ namespace Ecommerce.API.Controllers
                 return BadRequest("Cannot update this product");
             }
 
-            _repo.Update(product);
-            var isUpdated = await _repo.SaveChangesAsync();
+            _unit.Repository<Product>().Update(product);
+            var isUpdated = await _unit.Complete();
 
             if (!isUpdated)
             {
@@ -92,15 +92,15 @@ namespace Ecommerce.API.Controllers
             _logger.LogInformation("Starting request {@RequestName}, {@DataRecieved}, {@DateTimeUct}",
                 typeof(ProductsController).Name, id, DateTime.UtcNow);
 
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _unit.Repository<Product>().GetByIdAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            _repo.Delete(product);
-            var isDeleted = await _repo.SaveChangesAsync();
+            _unit.Repository<Product>().Delete(product);
+            var isDeleted = await _unit.Complete();
 
             if(!isDeleted)
             {
@@ -121,7 +121,7 @@ namespace Ecommerce.API.Controllers
 
             var spec = new BrandListSpecification();
 
-            var result = await _repo.ListAsync(spec);
+            var result = await _unit.Repository<Product>().ListAsync(spec);
 
             _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
                 typeof(ProductsController).Name, DateTime.UtcNow);
@@ -137,7 +137,7 @@ namespace Ecommerce.API.Controllers
 
             var spec = new TypeListSpecification();
 
-            var result = await _repo.ListAsync(spec);
+            var result = await _unit.Repository<Product>().ListAsync(spec);
 
             _logger.LogInformation("Ending request {@RequestName}, {@DateTimeUct}",
                 typeof(ProductsController).Name, DateTime.UtcNow);
@@ -147,7 +147,7 @@ namespace Ecommerce.API.Controllers
 
         private bool ProductExists(int id)
         {
-            return _repo.Exists(id);
+            return _unit.Repository<Product>().Exists(id);
         }
     }
 }

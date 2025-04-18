@@ -23,6 +23,7 @@ builder.Services.AddDbContext<StoreContext>(options =>
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Host.UseSerilog((context, configuration) =>
 {
@@ -44,6 +45,7 @@ builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddAuthentication();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<StoreContext>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 
@@ -60,10 +62,20 @@ app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseCors(options => 
-    options.AllowAnyHeader().AllowAnyMethod().AllowCredentials()
-    .WithOrigins("http://localhost:4200", "https://localhost:4200")
-);
+//app.UseCors(options => 
+//    options.AllowAnyHeader().AllowAnyMethod().AllowCredentials()
+//    .WithOrigins("https://localhost:4200", "http://localhost:4200")
+//);
+
+app.UseCors(options =>
+{
+    options.WithOrigins("http://localhost:4200")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials();
+});
+
+
 
 app.MapControllers();
 

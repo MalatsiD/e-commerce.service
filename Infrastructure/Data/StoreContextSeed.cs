@@ -25,6 +25,20 @@ namespace Ecommerce.Infrastructure.Data
 
                 await storeContext.SaveChangesAsync();
             }
+
+            if (!storeContext.DeliveryMethods.Any())
+            {
+                var dmData = await File.ReadAllTextAsync("../Infrastructure/Data/SeedData/delivery.json");
+
+                var deliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(dmData);
+
+                if (deliveryMethods == null)
+                    return;
+
+                await storeContext.DeliveryMethods.AddRangeAsync(deliveryMethods);
+
+                await storeContext.SaveChangesAsync();
+            }
         }
     }
 }

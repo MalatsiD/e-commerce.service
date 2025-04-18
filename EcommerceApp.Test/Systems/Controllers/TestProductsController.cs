@@ -13,14 +13,14 @@ namespace Ecommerce.Test.Systems.Controllers
     public class TestProductsController
     {
         private readonly Mock<ILogger<ProductsController>> _mockLogger;
-        private readonly Mock<IGenericRepository<Product>> _mockRepo;
+        private readonly Mock<IUnitOfWork> _unit;
         private readonly ProductsController _controller;
 
         public TestProductsController()
         {
             _mockLogger = new Mock<ILogger<ProductsController>>();
-            _mockRepo = new Mock<IGenericRepository<Product>>();
-            _controller = new ProductsController(_mockRepo.Object, _mockLogger.Object);
+            _unit = new Mock<IUnitOfWork>();
+            _controller = new ProductsController(_unit.Object, _mockLogger.Object);
         }
 
         #region Test Get Product List
@@ -31,12 +31,12 @@ namespace Ecommerce.Test.Systems.Controllers
             var specParams = new ProductSpecParams();
             var products = ProductData.GetProducts();
 
-            _mockRepo
-            .Setup(repo => repo.ListAsync(It.IsAny<ProductSpecification>()))
+            _unit
+            .Setup(repo => repo.Repository<Product>().ListAsync(It.IsAny<ProductSpecification>()))
             .ReturnsAsync(products);
 
-            _mockRepo
-                .Setup(repo => repo.CountAsync(It.IsAny<ProductSpecification>()))
+            _unit
+                .Setup(repo => repo.Repository<Product>().CountAsync(It.IsAny<ProductSpecification>()))
                 .ReturnsAsync(products.Count);
 
             // Act
@@ -61,7 +61,7 @@ namespace Ecommerce.Test.Systems.Controllers
             var products = ProductData.GetProducts();
             var filteredProduct = products.Find(x => x.Id == id);
 
-            _mockRepo.Setup(service => service.GetByIdAsync(id))
+            _unit.Setup(service => service.Repository<Product>().GetByIdAsync(id))
                 .ReturnsAsync(filteredProduct);
 
             // Act
@@ -82,7 +82,7 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == 3);
 
-            _mockRepo.Setup(service => service.GetByIdAsync(id))
+            _unit.Setup(service => service.Repository<Product>().GetByIdAsync(id))
                 .ReturnsAsync(product);
 
             // Act
@@ -102,9 +102,9 @@ namespace Ecommerce.Test.Systems.Controllers
             // Arrange
             var product = ProductData.GetProduct(3, "New Product");
 
-            _mockRepo.Setup(service => service.Add(product));
+            _unit.Setup(service => service.Repository<Product>().Add(product));
 
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(true);
 
             // Act
@@ -124,8 +124,8 @@ namespace Ecommerce.Test.Systems.Controllers
             // Arrange
             var product = ProductData.GetProduct(3, "Test New Prod");
 
-            _mockRepo.Setup(service => service.Add(product));
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Repository<Product>().Add(product));
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(false);
 
             // Act
@@ -146,10 +146,10 @@ namespace Ecommerce.Test.Systems.Controllers
             var product = ProductData.GetProducts().Find(x => x.Id == id);
             product!.Name = "Updated Name";
 
-            _mockRepo.Setup(service => service.Exists(id))
+            _unit.Setup(service => service.Repository<Product>().Exists(id))
                 .Returns(true);
-            _mockRepo.Setup(service => service.Update(product!));
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Repository<Product>().Update(product!));
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(true);
 
             // Act
@@ -166,7 +166,7 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == 2);
 
-            _mockRepo.Setup(service => service.Exists(id))
+            _unit.Setup(service => service.Repository<Product>().Exists(id))
                  .Returns(true);
 
             // Act
@@ -184,10 +184,10 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == 1);
 
-            _mockRepo.Setup(service => service.Exists(id))
+            _unit.Setup(service => service.Repository<Product>().Exists(id))
                  .Returns(true);
-            _mockRepo.Setup(service => service.Update(product!));
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Repository<Product>().Update(product!));
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(false);
 
             // Act
@@ -207,10 +207,10 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == id);
 
-            _mockRepo.Setup(service => service.GetByIdAsync(id))
+            _unit.Setup(service => service.Repository<Product>().GetByIdAsync(id))
                 .ReturnsAsync(product);
-            _mockRepo.Setup(service => service.Delete(product!));
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Repository<Product>().Delete(product!));
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(true);
 
             // Act
@@ -227,7 +227,7 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == 3);
 
-            _mockRepo.Setup(service => service.GetByIdAsync(id))
+            _unit.Setup(service => service.Repository<Product>().GetByIdAsync(id))
                 .ReturnsAsync(product);
 
             // Act 
@@ -245,10 +245,10 @@ namespace Ecommerce.Test.Systems.Controllers
             int id = 1;
             var product = ProductData.GetProducts().Find(x => x.Id == id);
 
-            _mockRepo.Setup(service => service.GetByIdAsync(id))
+            _unit.Setup(service => service.Repository<Product>().GetByIdAsync(id))
                 .ReturnsAsync(product);
-            _mockRepo.Setup(service => service.Delete(product!));
-            _mockRepo.Setup(service => service.SaveChangesAsync())
+            _unit.Setup(service => service.Repository<Product>().Delete(product!));
+            _unit.Setup(service => service.Complete())
                 .ReturnsAsync(false);
 
             // Act 
@@ -267,7 +267,7 @@ namespace Ecommerce.Test.Systems.Controllers
             // Arrange
             var brands = ProductData.GetBrands();
 
-            _mockRepo.Setup(repo => repo.ListAsync(It.IsAny<BrandListSpecification>()))
+            _unit.Setup(repo => repo.Repository<Product>().ListAsync(It.IsAny<BrandListSpecification>()))
             .ReturnsAsync(brands);
 
             // Act
@@ -290,7 +290,7 @@ namespace Ecommerce.Test.Systems.Controllers
             // Arrange
             var types = ProductData.GetTypes();
 
-            _mockRepo.Setup(repo => repo.ListAsync(It.IsAny<TypeListSpecification>()))
+            _unit.Setup(repo => repo.Repository<Product>().ListAsync(It.IsAny<TypeListSpecification>()))
             .ReturnsAsync(types);
 
             // Act

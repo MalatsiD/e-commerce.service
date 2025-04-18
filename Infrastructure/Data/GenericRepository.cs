@@ -63,11 +63,6 @@ namespace Ecommerce.Infrastructure.Data
             return await ApplySpecification(spec).ToListAsync();
         }
 
-        public async Task<bool> SaveChangesAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
-
         public void Update(T entity)
         {
             _context.Set<T>().Attach(entity);
