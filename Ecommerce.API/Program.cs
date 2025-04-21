@@ -1,4 +1,5 @@
 using Ecommerce.API.Middleware;
+using Ecommerce.API.SignalR;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Data;
@@ -46,6 +47,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<StoreContext>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -75,11 +77,12 @@ app.UseCors(options =>
            .AllowCredentials();
 });
 
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapGroup("api").MapIdentityApi<AppUser>(); // this will now use "api/login"
+app.MapHub<NotificationHub>("/hub/notifications");
 
 try
 {

@@ -21,5 +21,12 @@ namespace Ecommerce.Core.Specifications
             AddInclude("OrderItems");
             AddInclude("DeliveryMethod");
         }
+
+        public OrderSpecification(string paymentIntentId, bool isPaymentIntent): 
+            base(x => x.PaymentIntentId == paymentIntentId)
+        {
+            AddInclude("OrderItems");
+            AddInclude("DeliveryMethod");
+        }
     }
 }

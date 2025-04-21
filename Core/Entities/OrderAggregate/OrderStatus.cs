@@ -10,6 +10,7 @@ namespace Ecommerce.Core.Entities.OrderAggregate
     {
         Pending,
         PaymentReceived,
-        PaymentFailed
+        PaymentFailed,
+        PaymentMismatch
     }
 }
